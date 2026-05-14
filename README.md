@@ -187,10 +187,10 @@ H(s) = ───── = ──────────────
        τ_f s+1    0.5s + 1
 ```
 
-| Parameter | Value |
-|---|---|
-| Filter time constant τ_f | 0.5 s |
-| −3 dB cutoff frequency | 1/(2π × 0.5) ≈ 0.318 Hz |
+| Parameter                      | Value                          |
+|--------------------------------|--------------------------------|
+| Filter time constant τ_f       | 0.5 s                          |
+| −3 dB cutoff frequency         | 1/(2π × 0.5) ≈ 0.318 Hz        |
 
 The filter introduces a small phase lag at the crossover frequency, which is why the derivative gain is kept moderate — adding too much Kd would amplify the filtered noise in the derivative path.
 
@@ -249,6 +249,7 @@ u_ff(t)  = −d_hat(t) / K_plant
 ### Implementation parameters
 
 | Parameter        | Value | Purpose                                    |
+|------------------|-------|--------------------------------------------|
 | Observer gain Ld | 0.5   | Scales sensitivity of residual detection   |
 | DOB filter τ     | 1.0 s | Smooths estimate, prevents noise injection |
 
@@ -318,6 +319,7 @@ Setpoint ──→ [Sum_Error] ──→ [PID(s)] ──→ [Sum_FF] ──→ [
 ## 12. Simulink Block Reference
 
 | Block name      | Type              | Parameters                   | Signal carried                 |
+|-----------------|-------------------|------------------------------|--------------------------------|
 | `Setpoint`      | Step              | After=1, Time=0              | Reference r(t) = 1             |
 | `Sum_Error`     | Sum               | Inputs=`+-`                  | Error e(t) = r − y             |
 | `PID`           | PID Controller    | P=2.5, I=0.35, D=0.8, N=10   | Control effort u_pid(t)        |
@@ -468,7 +470,7 @@ ts = SimOut.get('ws_filtered');
 ## 15. Bug Fixes Applied
 
 | # | Location | Bug description | Fix applied |
-|---|---|---|---|
+|---|----------|----------------|--------------|
 | 1 | `pid()` call | No derivative filter — pure differentiator, infinite HF gain | Added `Tf = 0.1` as fourth argument |
 | 2 | Disturbance model | Added as raw constant offset — ignores controller, dimension crash | Used `lsim(G_dist, d, t)` through correct closed-loop TF |
 | 3 | Control signal | Error computed from undisturbed `y`, not filtered disturbed output | Changed to `1 − filtered_output` |
@@ -511,12 +513,13 @@ Three-line comparison of normal response, disturbed response, and filtered respo
 
 ## 17. Performance Results
 
-| Metric              | Value    | Specification | Status  |
-| Rise time (10%→90%) | ~4.8 s   | < 20 s        | SUCCESS |
-| Settling time (±5%) | ~17.8 s  | < 50 s        | SUCCESS |
-| Overshoot           | ~1.6 %   | < 5 %         | SUCCESS |
-| Steady-state error  | < 0.005  | ≈ 0           | SUCCESS |
-| Stability           | Stable   | Required      | SUCCESS |
+| Metric                      | Value    | Specification | Status  |
+|-----------------------------|----------|---------------|---------|
+| Rise time (10%→90%)         | ~4.8 s   | < 20 s        | SUCCESS |
+| Settling time (±5%)         | ~17.8 s  | < 50 s        | SUCCESS |
+| Overshoot                   | ~1.6 %   | < 5 %         | SUCCESS |
+| Steady-state error          | < 0.005  | ≈ 0           | SUCCESS |
+| Stability                   | Stable   | Required      | SUCCESS |
 
 All four specifications are met with comfortable margin. The low overshoot (1.6%) is achieved by the combination of a moderate Kp, filtered derivative action, and the DOB feedforward preventing the integrator from over-correcting.
 
@@ -550,7 +553,8 @@ This will:
 
 ### Required toolboxes
 
-| Toolbox                | Required for                                          |
+|| Toolbox                | Required for                                          |
+|------------------------|-------------------------------------------------------|
 | Control System Toolbox | `tf`, `pid`, `feedback`, `stepinfo`, `lsim`, `dcgain` |
 | Simulink               | Model building and simulation                         |
 
@@ -563,6 +567,7 @@ No additional toolboxes are needed. The MPC Toolbox and Fuzzy Logic Toolbox are 
 The Simulink builder is tested and compatible with the following releases:
 
 | MATLAB version  | `SimOut.get()` returns      | Handled by `extract_ts()`            |
+|-----------------|-----------------------------|--------------------------------------|
 | R2019b – R2021a | `timeseries`                | Yes — `.Time` / `.Data`              |
 | R2021b – R2022a | `timeseries`                | Yes — `.Time` / `.Data`              |
 | R2022b+         | `timetable`                 | Yes — `seconds(ts.Time)` / `ts{:,1}` |
